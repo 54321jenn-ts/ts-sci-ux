@@ -1,0 +1,27 @@
+{
+    "name": "Demo App",
+    "description": "A React data app.",
+    "namespace": "private-training-onboarding",
+    "slug": "ts-app-app",
+    "version": "v0.1.0",
+    "icon": "images/icon.png",
+    "type": "connector",
+    "labels": [
+        {
+            "name": "subtype",
+            "value": "data-app"
+        },
+        {
+            "name": "ts-routing-style",
+            "value": "subdomain"
+        }
+    ],
+    "exposesPorts": {
+      "3000": {
+        "description": "http",
+        "required": true,
+        "hubDefaultPort": 3000
+      }
+    },
+    "platformRequirements": []
+}

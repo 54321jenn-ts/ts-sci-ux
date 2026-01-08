@@ -1,0 +1,114 @@
+/* Toolbar Container */
+.toolbar {
+  background-color: #ffffff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+}
+
+/* Toolbar Content */
+.toolbar-content {
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 72px;
+  box-sizing: border-box;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* Toolbar Left Section */
+.toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Toolbar Right Section */
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* GitHub Link */
+.github-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  color: #333;
+  transition: color 0.2s ease, background-color 0.2s ease;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+.github-link:hover {
+  color: #000;
+  background-color: #f0f0f0;
+}
+
+.github-link svg {
+  display: block;
+}
+
+/* Sidebar Toggle Button */
+.sidebar-toggle-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  color: #666;
+}
+
+.sidebar-toggle-btn:hover {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.sidebar-toggle-btn:active {
+  background-color: #e0e0e0;
+}
+
+.sidebar-toggle-btn svg {
+  display: block;
+}
+
+/* Toolbar Title */
+.toolbar-title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  line-height: 1.2;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .toolbar-content {
+    padding: 0.875rem 1.5rem;
+  }
+
+  .toolbar-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbar-content {
+    padding: 0.75rem 1rem;
+  }
+
+  .toolbar-title {
+    font-size: 1.25rem;
+  }
+}
+
