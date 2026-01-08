@@ -3,6 +3,10 @@
 # ignore vitest generated files
 **/__screenshots__/*
 
+# Docker images and tarballs
+*.tar
+image.tar
+
 #
 # Created by https://www.toptal.com/developers/gitignore/api/vim,emacs,macos,python,virtualenv,intellij+all,visualstudiocode,node,react
 # Edit at https://www.toptal.com/developers/gitignore?templates=vim,emacs,macos,python,virtualenv,intellij+all,visualstudiocode,node,react
