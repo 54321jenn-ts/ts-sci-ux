@@ -82,6 +82,11 @@ function CustomSidebar({ items, isCollapsed = false }: CustomSidebarProps) {
           </button>
         );
       })}
+      {!isCollapsed && (
+        <div className="sidebar-version">
+          version {manifest.version.replace(/^v/, '')}
+        </div>
+      )}
     </nav>
   );
 }

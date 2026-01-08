@@ -1,6 +1,6 @@
 {
-  "name": "@demo-app/client",
-  "description": "Demo app using React template and TetraScience's Component Library",
+  "name": "@ts-design-patterns/client",
+  "description": "Design Patterns app using React template and TetraScience's Component Library",
   "private": true,
   "version": "0.1.0",
   "type": "module",
@@ -20,13 +20,17 @@
     "@tetrascience-npm/tetrascience-react-ui": "^0.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",
-    "react-router-dom": "^7.12.0"
+    "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.12.0",
+    "react-syntax-highlighter": "^16.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
     "@types/react-router-dom": "^5.3.3",
+    "@types/react-syntax-highlighter": "^15.5.13",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/browser": "^3.0.9",
     "@vitest/coverage-v8": "^3.0.9",

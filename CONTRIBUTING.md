@@ -1,4 +1,4 @@
-# Developing ts-app-app <!-- omit in toc -->
+# Developing ts-design-patterns <!-- omit in toc -->
 
 ## Table of contents <!-- omit in toc -->
 

@@ -28,6 +28,11 @@ const sidebarItems = [
     label: 'Charts & Graphs',
     path: '/charts',
   },
+  {
+    icon: 'cube',
+    label: 'Contributing',
+    path: '/contributing',
+  },
 ];
 
 function Layout() {

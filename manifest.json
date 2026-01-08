@@ -1,9 +1,9 @@
 {
-    "name": "Demo App",
-    "description": "A React data app.",
+    "name": "Design Patterns",
+    "description": "A React data app with design patterns to help you get started building Tetra Data Apps.",
     "namespace": "private-training-onboarding",
-    "slug": "ts-app-app",
-    "version": "v0.1.0",
+    "slug": "ts-pattern-app",
+    "version": "v1.1.0",
     "icon": "images/icon.png",
     "type": "connector",
     "labels": [

@@ -10,12 +10,12 @@
 
 /* Toolbar Content */
 .toolbar-content {
-  padding: 1rem 2rem;
+  padding: 0.5rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  min-height: 72px;
+  height: 60px;
   box-sizing: border-box;
   border-bottom: 1px solid #e5e7eb;
 }
@@ -85,8 +85,8 @@
 /* Toolbar Title */
 .toolbar-title {
   margin: 0;
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 400;
   color: #1a1a1a;
   line-height: 1.2;
 }

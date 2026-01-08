@@ -40,7 +40,7 @@
 .page-description {
   color: #666;
   margin-bottom: 2rem;
-  margin-top: 2rem;
+  margin-top: 0rem;
   font-size: 1.1rem;
 }
 
@@ -59,6 +59,14 @@
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   border-radius: 8px;
   outline: none;
+  display: flex;
+  height: 100%;
+}
+
+.clickable-card > * {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .clickable-card:hover {
@@ -286,10 +294,6 @@
     font-size: 1.25rem;
   }
 
-  .page-description {
-    font-size: 1rem;
-  }
-
   .demo-grid {
     grid-template-columns: 1fr;
     gap: 1.5rem;
@@ -333,12 +337,6 @@
   .app-container h2 {
     font-size: 1.1rem;
   }
-
-  .page-description {
-    font-size: 0.95rem;
-    margin-bottom: 1.5rem;
-  }
-
   .demo-grid {
     gap: 1rem;
   }

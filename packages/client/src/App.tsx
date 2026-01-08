@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage';
 import DataTablePage from './pages/DataTablePage';
 import FormsPage from './pages/FormsPage';
 import ChartsPage from './pages/ChartsPage';
+import ContributingPage from './pages/ContributingPage';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="data-table" element={<DataTablePage />} />
           <Route path="forms" element={<FormsPage />} />
           <Route path="charts" element={<ChartsPage />} />
+          <Route path="contributing" element={<ContributingPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -147,6 +147,25 @@ function ChartsPage() {
   return (
     <div className="app-container">
       <div className="demo-grid">
+        {/* Box Plot - Statistical Analysis */}
+        <Card>
+          <h3>Treatment Efficacy Analysis</h3>
+          <p style={{ marginTop: '1rem', marginBottom: '1rem' }}>
+            Statistical comparison of cell viability across control and treatment groups showing median, quartiles, and outliers.
+          </p>
+          <Plot
+            data={boxPlotData}
+            layout={{
+              ...commonLayout,
+              xaxis: { title: 'Treatment Group' },
+              yaxis: { title: 'Cell Viability (OD600)' },
+              showlegend: false,
+            }}
+            config={{ responsive: true }}
+            style={{ width: '100%', height: '400px' }}
+          />
+        </Card>
+
         {/* HPLC Chromatogram */}
         <Card>
           <h3>HPLC Chromatogram</h3>
@@ -159,25 +178,6 @@ function ChartsPage() {
               ...commonLayout,
               xaxis: { title: 'Retention Time (min)' },
               yaxis: { title: 'UV Absorbance (mAU)' },
-              showlegend: true,
-            }}
-            config={{ responsive: true }}
-            style={{ width: '100%', height: '400px' }}
-          />
-        </Card>
-
-        {/* Bioreactor Temperature */}
-        <Card>
-          <h3>Bioreactor Temperature Monitoring</h3>
-          <p style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-            Real-time temperature monitoring of a bioreactor showing actual vs. target temperature with tight process control.
-          </p>
-          <Plot
-            data={temperatureData}
-            layout={{
-              ...commonLayout,
-              xaxis: { title: 'Time (hours)' },
-              yaxis: { title: 'Temperature (°C)', range: [36.5, 37.5] },
               showlegend: true,
             }}
             config={{ responsive: true }}
@@ -242,19 +242,19 @@ function ChartsPage() {
           />
         </Card>
 
-        {/* Box Plot - Statistical Analysis */}
+        {/* Bioreactor Temperature */}
         <Card>
-          <h3>Treatment Efficacy Analysis</h3>
+          <h3>Bioreactor Temperature Monitoring</h3>
           <p style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-            Statistical comparison of cell viability across control and treatment groups showing median, quartiles, and outliers.
+            Real-time temperature monitoring of a bioreactor showing actual vs. target temperature with tight process control.
           </p>
           <Plot
-            data={boxPlotData}
+            data={temperatureData}
             layout={{
               ...commonLayout,
-              xaxis: { title: 'Treatment Group' },
-              yaxis: { title: 'Cell Viability (OD600)' },
-              showlegend: false,
+              xaxis: { title: 'Time (hours)' },
+              yaxis: { title: 'Temperature (°C)', range: [36.5, 37.5] },
+              showlegend: true,
             }}
             config={{ responsive: true }}
             style={{ width: '100%', height: '400px' }}

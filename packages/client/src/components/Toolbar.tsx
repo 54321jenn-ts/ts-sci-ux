@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom';
 import './Toolbar.css';
 
 const pageTitles: Record<string, string> = {
-  '/': 'UI Component Demo',
+  '/': 'Home',
   '/data-table': 'Data Table',
   '/forms': 'Forms',
   '/charts': 'Charts & Graphs',
@@ -37,7 +37,7 @@ function Toolbar({ isSidebarCollapsed, onToggleSidebar }: ToolbarProps) {
         </div>
         <div className="toolbar-right">
           <a
-            href="#"
+            href="https://github.com/54321jenn-ts/ts-design-patterns"
             className="github-link"
             aria-label="View on GitHub"
             target="_blank"

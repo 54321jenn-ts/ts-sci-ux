@@ -1,7 +1,7 @@
-#  Demo App <!-- omit in toc -->
+#  TetraScience Design Patterns <!-- omit in toc -->
 ## Generated from TS-CLI React Template
 
-This app was generated from the TetraScience CLI React template and uses the TetraSciece Component Library and custom styling to demonstrate what a useable experience looks like.
+This app was generated from the TetraScience CLI React template and uses the TetraScience Component Library and custom styling to demonstrate design patterns and best practices.
 
 
 
@@ -19,7 +19,7 @@ v1.1.0
 
 ## Summary
 
-_Demo of TetraScience React UI components._
+_Design patterns and examples using TetraScience React UI components._
 
 ## Input
 
