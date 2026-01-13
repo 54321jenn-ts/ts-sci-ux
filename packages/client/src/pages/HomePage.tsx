@@ -1,4 +1,4 @@
-import { Card } from '@tetrascience-npm/tetrascience-react-ui';
+import CustomCard from '../components/CustomCard';
 import { Link } from 'react-router-dom';
 import './HomePage.css';
 
@@ -106,7 +106,7 @@ function HomePage() {
       <div className="section-header">
         <h3>{title}</h3>
       </div>
-      <Card className="section-card">
+      <CustomCard className="section-card">
         <div className="section-card-content">
           {items.map((item, index) => (
             <div key={index} className="list-item">
@@ -121,7 +121,7 @@ function HomePage() {
             </div>
           ))}
         </div>
-      </Card>
+      </CustomCard>
       <Link to={viewAllLink} className="view-all-link">View All</Link>
     </div>
   );

@@ -1,4 +1,4 @@
-import { Table, TableColumn } from '@tetrascience-npm/tetrascience-react-ui';
+import CustomTable, { TableColumn } from '../components/CustomTable';
 import { useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import './SearchResultsPage.css';
@@ -330,9 +330,10 @@ function SearchResultsPage() {
       </div>
 
       <div className="search-results-content" ref={tableRef}>
-        <Table
+        <CustomTable
           data={dataWithCheckbox}
           columns={columns}
+          onRowClick={handleRowClick}
         />
       </div>
     </div>

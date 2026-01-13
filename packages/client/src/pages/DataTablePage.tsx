@@ -1,4 +1,4 @@
-import { Table, TableColumn } from '@tetrascience-npm/tetrascience-react-ui';
+import CustomTable, { TableColumn } from '../components/CustomTable';
 
 interface SampleData {
   id: number;
@@ -31,7 +31,7 @@ function DataTablePage() {
     <div className="app-container">
       <div className="demo-grid">
         <div style={{ gridColumn: '1 / -1' }}>
-          <Table data={sampleData} columns={columns} />
+          <CustomTable data={sampleData} columns={columns} />
         </div>
       </div>
     </div>
