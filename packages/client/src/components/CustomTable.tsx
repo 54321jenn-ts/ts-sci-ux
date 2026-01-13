@@ -1,8 +1,9 @@
 import './CustomTable.css';
+import { ReactNode } from 'react';
 
 export interface TableColumn<T> {
   key: keyof T | string;
-  header: string;
+  header: string | ReactNode;
   width?: string;
 }
 
@@ -13,6 +14,18 @@ interface TableProps<T> {
 }
 
 function CustomTable<T extends Record<string, any>>({ data, columns, onRowClick }: TableProps<T>) {
+  const getCellContent = (row: T, columnKey: keyof T | string): ReactNode => {
+    const value = row[columnKey as keyof T];
+
+    // If the value is already a React element, return it as-is
+    if (value && typeof value === 'object' && 'type' in value) {
+      return value;
+    }
+
+    // Otherwise return the value (string, number, etc.)
+    return value;
+  };
+
   return (
     <div className="custom-table-container">
       <table className="custom-table">
@@ -37,7 +50,7 @@ function CustomTable<T extends Record<string, any>>({ data, columns, onRowClick 
             >
               {columns.map((column) => (
                 <td key={String(column.key)}>
-                  {row[column.key]}
+                  {getCellContent(row, column.key)}
                 </td>
               ))}
             </tr>
