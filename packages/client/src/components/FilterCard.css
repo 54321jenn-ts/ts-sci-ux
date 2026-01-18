@@ -8,6 +8,13 @@
   padding: 1.5rem;
 }
 
+.filter-card-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
 .filter-card-header {
   margin-bottom: 1.5rem;
 }
@@ -16,6 +23,30 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex: 1;
+}
+
+.filter-title-dropdown-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: opacity 0.2s ease;
+}
+
+.filter-title-dropdown-btn:hover:not(:disabled) {
+  opacity: 0.7;
+}
+
+.filter-title-dropdown-btn:disabled {
+  cursor: default;
+}
+
+.filter-title-dropdown-btn:disabled:hover {
+  opacity: 1;
 }
 
 .filter-card-title {
@@ -53,9 +84,6 @@
 }
 
 .filter-card-close {
-  position: absolute;
-  top: 0.75rem;
-  right: 0.75rem;
   background: none;
   border: none;
   cursor: pointer;
@@ -69,6 +97,10 @@
 
 .filter-card-close:hover {
   color: var(--text-primary);
+}
+
+.filter-card-close-only {
+  margin-left: auto;
 }
 
 /* Filter Fields */
@@ -261,7 +293,7 @@
 .filter-card-footer {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding-top: 1.5rem;
   margin-top: 1.5rem;
   border-top: 1px solid var(--border-color);
@@ -285,7 +317,7 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  border: 1px solid var(--border-color);
+  border: none;
   background: var(--bg-primary);
   color: var(--text-primary);
   display: flex;
@@ -357,6 +389,15 @@
 
 .filter-load-item:hover {
   background-color: var(--hover-bg);
+}
+
+.filter-load-new-filter {
+  border-top: none;
+}
+
+.filter-load-new-filter .filter-load-item-title {
+  color: #1976D2;
+  font-weight: 600;
 }
 
 .filter-load-item-name {

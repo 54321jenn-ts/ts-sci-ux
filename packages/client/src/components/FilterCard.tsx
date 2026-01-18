@@ -132,16 +132,8 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
     };
   }, [showLoadDropdown]);
 
-  // Check if filter has been modified or reset to new filter
+  // Check if filter has been modified
   useEffect(() => {
-    // If all filters are removed, reset to "New Filter" state
-    if (filterOrder.length === 0 && currentFilterName !== 'New Filter') {
-      setCurrentFilterName('New Filter');
-      setSavedState(null);
-      setIsModified(false);
-      return;
-    }
-
     if (!savedState) {
       setIsModified(false);
       return;
@@ -166,7 +158,7 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
     const valuesChanged = JSON.stringify(currentValues) !== JSON.stringify(savedState.values);
 
     setIsModified(orderChanged || valuesChanged);
-  }, [filterOrder, fileName, createdOn, createdBetweenStart, createdBetweenEnd, createdBetweenLabel, instrument, software, modifiedBetweenStart, modifiedBetweenEnd, modifiedOn, tags, type, savedState, currentFilterName]);
+  }, [filterOrder, fileName, createdOn, createdBetweenStart, createdBetweenEnd, createdBetweenLabel, instrument, software, modifiedBetweenStart, modifiedBetweenEnd, modifiedOn, tags, type, savedState]);
   const [savedFilters, setSavedFilters] = useState<Array<{name: string, order: string[], values: any}>>(() => {
     const saved = localStorage.getItem('savedFilters');
 
@@ -407,66 +399,20 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
     return allFilters.find(f => f.value === filterName)?.label || filterName;
   };
 
-  const handleUpdateCurrentFilter = () => {
-    // Update the current filter (used by save icon)
-    const nameToSave = currentFilterName;
-
-    const filterData = {
-      name: nameToSave,
-      order: filterOrder,
-      values: {
-        fileName,
-        createdOn,
-        createdBetweenStart,
-        createdBetweenEnd,
-        createdBetweenLabel,
-        instrument,
-        software,
-        modifiedBetweenStart,
-        modifiedBetweenEnd,
-        modifiedOn,
-        tags,
-        type,
-      }
-    };
-
-    const updatedFilters = savedFilters.map(f =>
-      f.name === nameToSave ? filterData : f
-    );
-
-    setSavedFilters(updatedFilters);
-    localStorage.setItem('savedFilters', JSON.stringify(updatedFilters));
-
-    // Update saved state
-    setSavedState({
-      order: filterOrder,
-      values: {
-        fileName,
-        createdOn,
-        instrument,
-        software,
-        modifiedBetweenStart,
-        modifiedBetweenEnd,
-        modifiedOn,
-        tags,
-        type,
-      }
-    });
-    setIsModified(false);
-    setToast({message: `"${nameToSave}" updated`, visible: true});
-  };
-
-  const handleSaveAsNew = () => {
-    // Open modal to save as new filter
-    setFilterName('');
+  const handleOpenSaveModal = () => {
+    // Pre-fill with current filter name (or empty for new filter)
+    setFilterName(currentFilterName === 'New Filter' ? '' : currentFilterName);
     setShowSaveModal(true);
   };
 
   const handleSaveFilterFromModal = () => {
     if (!filterName.trim()) return;
 
+    const newName = filterName.trim();
+    const oldName = currentFilterName;
+
     const filterData = {
-      name: filterName.trim(),
+      name: newName,
       order: filterOrder,
       values: {
         fileName,
@@ -484,11 +430,46 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
       }
     };
 
-    const updatedFilters = [...savedFilters, filterData];
+    let updatedFilters;
+    let message;
+
+    // Check if we're updating an existing filter or creating a new one
+    const existingFilterIndex = savedFilters.findIndex(f => f.name === oldName);
+
+    if (existingFilterIndex !== -1 && oldName !== 'New Filter') {
+      // Updating existing filter
+      if (newName === oldName) {
+        // Same name - just update the filter
+        updatedFilters = savedFilters.map(f =>
+          f.name === oldName ? filterData : f
+        );
+        message = `"${newName}" updated`;
+      } else {
+        // Different name - check if new name already exists
+        if (savedFilters.some(f => f.name === newName)) {
+          setToast({message: 'A filter with this name already exists', visible: true});
+          return;
+        }
+        // Replace old filter with new name
+        updatedFilters = savedFilters.map(f =>
+          f.name === oldName ? filterData : f
+        );
+        message = `Filter renamed to "${newName}"`;
+      }
+    } else {
+      // Creating new filter
+      if (savedFilters.some(f => f.name === newName)) {
+        setToast({message: 'A filter with this name already exists', visible: true});
+        return;
+      }
+      updatedFilters = [...savedFilters, filterData];
+      message = `"${newName}" saved`;
+    }
+
     setSavedFilters(updatedFilters);
     localStorage.setItem('savedFilters', JSON.stringify(updatedFilters));
 
-    setCurrentFilterName(filterName.trim());
+    setCurrentFilterName(newName);
 
     // Update saved state
     setSavedState({
@@ -512,7 +493,7 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
 
     setShowSaveModal(false);
     setFilterName('');
-    setToast({message: `"${filterData.name}" saved`, visible: true});
+    setToast({message, visible: true});
   };
 
   const handleDeleteFilter = (filterNameToDelete: string) => {
@@ -587,10 +568,25 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
     setTags(filterData.values.tags || '');
     setType(filterData.values.type || '');
 
-    // Save the state for comparison
+    // Save the state for comparison - normalize with defaults
+    const normalizedValues = {
+      fileName: filterData.values.fileName || '',
+      createdOn: filterData.values.createdOn || '',
+      createdBetweenStart: filterData.values.createdBetweenStart || '',
+      createdBetweenEnd: filterData.values.createdBetweenEnd || '',
+      createdBetweenLabel: filterData.values.createdBetweenLabel || 'Created between',
+      instrument: filterData.values.instrument || '',
+      software: filterData.values.software || '',
+      modifiedBetweenStart: filterData.values.modifiedBetweenStart || '',
+      modifiedBetweenEnd: filterData.values.modifiedBetweenEnd || '',
+      modifiedOn: filterData.values.modifiedOn || '',
+      tags: filterData.values.tags || '',
+      type: filterData.values.type || '',
+    };
+
     setSavedState({
       order: filterData.order,
-      values: filterData.values
+      values: normalizedValues
     });
     setIsModified(false);
   };
@@ -598,9 +594,10 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
   const renderFilterField = (filterName: string) => {
     const isDragging = draggedFilter === filterName;
     const isDragOver = dragOverFilter === filterName;
+    const showDragHandle = filterOrder.length > 1;
 
     const commonProps = {
-      draggable: true,
+      draggable: filterOrder.length > 1,
       onDragStart: () => handleDragStart(filterName),
       onDragOver: (e: React.DragEvent) => handleDragOver(e, filterName),
       onDragEnd: handleDragEnd,
@@ -613,9 +610,11 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
           <div key={filterName} {...commonProps}>
             <div className="filter-field-header">
               <div className="filter-field-label-group">
-                <span className="filter-field-drag-handle">
-                  <DragIcon />
-                </span>
+                {showDragHandle && (
+                  <span className="filter-field-drag-handle">
+                    <DragIcon />
+                  </span>
+                )}
                 <label className="filter-field-label">File name</label>
               </div>
               <button
@@ -640,9 +639,11 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
           <div key={filterName} {...commonProps}>
             <div className="filter-field-header">
               <div className="filter-field-label-group">
-                <span className="filter-field-drag-handle">
-                  <DragIcon />
-                </span>
+                {showDragHandle && (
+                  <span className="filter-field-drag-handle">
+                    <DragIcon />
+                  </span>
+                )}
                 <label className="filter-field-label">Created on</label>
               </div>
               <button
@@ -667,9 +668,11 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
           <div key={filterName} {...commonProps}>
             <div className="filter-field-header">
               <div className="filter-field-label-group">
-                <span className="filter-field-drag-handle">
-                  <DragIcon />
-                </span>
+                {showDragHandle && (
+                  <span className="filter-field-drag-handle">
+                    <DragIcon />
+                  </span>
+                )}
                 <label className="filter-field-label">{createdBetweenLabel}</label>
               </div>
               <button
@@ -705,9 +708,11 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
           <div key={filterName} {...commonProps}>
             <div className="filter-field-header">
               <div className="filter-field-label-group">
-                <span className="filter-field-drag-handle">
-                  <DragIcon />
-                </span>
+                {showDragHandle && (
+                  <span className="filter-field-drag-handle">
+                    <DragIcon />
+                  </span>
+                )}
                 <label className="filter-field-label">Instrument</label>
               </div>
               <button
@@ -741,9 +746,11 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
           <div key={filterName} {...commonProps}>
             <div className="filter-field-header">
               <div className="filter-field-label-group">
-                <span className="filter-field-drag-handle">
-                  <DragIcon />
-                </span>
+                {showDragHandle && (
+                  <span className="filter-field-drag-handle">
+                    <DragIcon />
+                  </span>
+                )}
                 <label className="filter-field-label">Software</label>
               </div>
               <button
@@ -777,9 +784,11 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
           <div key={filterName} {...commonProps}>
             <div className="filter-field-header">
               <div className="filter-field-label-group">
-                <span className="filter-field-drag-handle">
-                  <DragIcon />
-                </span>
+                {showDragHandle && (
+                  <span className="filter-field-drag-handle">
+                    <DragIcon />
+                  </span>
+                )}
                 <label className="filter-field-label">Modified between</label>
               </div>
               <button
@@ -815,9 +824,11 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
           <div key={filterName} {...commonProps}>
             <div className="filter-field-header">
               <div className="filter-field-label-group">
-                <span className="filter-field-drag-handle">
-                  <DragIcon />
-                </span>
+                {showDragHandle && (
+                  <span className="filter-field-drag-handle">
+                    <DragIcon />
+                  </span>
+                )}
                 <label className="filter-field-label">Modified on</label>
               </div>
               <button
@@ -842,9 +853,11 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
           <div key={filterName} {...commonProps}>
             <div className="filter-field-header">
               <div className="filter-field-label-group">
-                <span className="filter-field-drag-handle">
-                  <DragIcon />
-                </span>
+                {showDragHandle && (
+                  <span className="filter-field-drag-handle">
+                    <DragIcon />
+                  </span>
+                )}
                 <label className="filter-field-label">Tags</label>
               </div>
               <button
@@ -870,9 +883,11 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
           <div key={filterName} {...commonProps}>
             <div className="filter-field-header">
               <div className="filter-field-label-group">
-                <span className="filter-field-drag-handle">
-                  <DragIcon />
-                </span>
+                {showDragHandle && (
+                  <span className="filter-field-drag-handle">
+                    <DragIcon />
+                  </span>
+                )}
                 <label className="filter-field-label">Type</label>
               </div>
               <button
@@ -920,39 +935,94 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
 
   return (
     <div className="filter-card">
-      <button
-        className="filter-card-close"
-        onClick={onClose}
-        aria-label="Close filters"
-      >
-        <CloseIcon />
-      </button>
-
-      {filterOrder.length > 0 && (
-        <div className="filter-card-header">
-          <div className="filter-card-title-wrapper">
-            <h2 className="filter-card-title">{currentFilterName}</h2>
-            {(isModified || currentFilterName === 'New Filter') && (
-              <button
-                className="filter-card-modified-icon"
-                onClick={() => {
-                  if (currentFilterName === 'New Filter') {
-                    // Open modal to save as new filter
-                    handleSaveAsNew();
-                  } else {
-                    // Update existing filter
-                    handleUpdateCurrentFilter();
-                  }
-                }}
-                title={currentFilterName === 'New Filter' ? 'Save filter' : 'Save changes'}
-                aria-label={currentFilterName === 'New Filter' ? 'Save filter' : 'Save changes'}
-              >
-                <SaveIcon />
-              </button>
+      <div className="filter-card-top-bar">
+        <div className="filter-card-title-wrapper">
+          <div className="filter-load-dropdown-wrapper" ref={loadDropdownRef}>
+            <button
+              className="filter-title-dropdown-btn"
+              onClick={() => setShowLoadDropdown(!showLoadDropdown)}
+              disabled={savedFilters.length === 0}
+            >
+              <h2 className="filter-card-title">{currentFilterName}</h2>
+              {savedFilters.length > 0 && <ChevronDownIcon />}
+            </button>
+            {showLoadDropdown && (
+              <div className="filter-load-dropdown">
+                {savedFilters.map(filter => (
+                  <div key={filter.name} className="filter-load-item">
+                    <button
+                      className="filter-load-item-name"
+                      onClick={() => {
+                        handleLoadFilter(filter);
+                        setShowLoadDropdown(false);
+                      }}
+                    >
+                      <span className="filter-load-item-title">{filter.name}</span>
+                    </button>
+                    <div className="filter-load-item-actions">
+                      <button
+                        className="filter-load-item-delete"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setFilterToDelete(filter.name);
+                        }}
+                        title="Delete filter"
+                        aria-label="Delete filter"
+                      >
+                        <DeleteIcon />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                <div className="filter-load-item filter-load-new-filter">
+                  <button
+                    className="filter-load-item-name"
+                    onClick={() => {
+                      // Reset to new filter state
+                      setFilterOrder([]);
+                      setFileName('');
+                      setCreatedOn('');
+                      setCreatedBetweenStart('');
+                      setCreatedBetweenEnd('');
+                      setCreatedBetweenLabel('Created between');
+                      setInstrument('');
+                      setSoftware('');
+                      setModifiedBetweenStart('');
+                      setModifiedBetweenEnd('');
+                      setModifiedOn('');
+                      setTags('');
+                      setType('');
+                      setCurrentFilterName('New Filter');
+                      setSavedState(null);
+                      setIsModified(false);
+                      setShowLoadDropdown(false);
+                    }}
+                  >
+                    <span className="filter-load-item-title">New Filter</span>
+                  </button>
+                </div>
+              </div>
             )}
           </div>
+          {filterOrder.length > 0 && (isModified || currentFilterName === 'New Filter') && (
+            <button
+              className="filter-card-modified-icon"
+              onClick={handleOpenSaveModal}
+              title={currentFilterName === 'New Filter' ? 'Save filter' : 'Save changes'}
+              aria-label={currentFilterName === 'New Filter' ? 'Save filter' : 'Save changes'}
+            >
+              <SaveIcon />
+            </button>
+          )}
         </div>
-      )}
+        <button
+          className="filter-card-close"
+          onClick={onClose}
+          aria-label="Close filters"
+        >
+          <CloseIcon />
+        </button>
+      </div>
 
       <div className="filter-fields">
         {filterOrder.length === 0 ? (
@@ -1015,51 +1085,6 @@ function FilterCard({ onClose, onSearch }: FilterCardProps) {
       </div>
 
       <div className="filter-card-footer">
-        <div className="filter-footer-left">
-          <div className="filter-load-dropdown-wrapper" ref={loadDropdownRef}>
-            <button
-              className="filter-btn-load"
-              onClick={() => setShowLoadDropdown(!showLoadDropdown)}
-              disabled={savedFilters.length === 0}
-              title="Saved Filters"
-            >
-              <FolderIcon />
-              <span className="filter-btn-text">Saved Filters</span>
-              <ChevronDownIcon />
-            </button>
-            {showLoadDropdown && (
-              <div className="filter-load-dropdown">
-                {savedFilters.map(filter => (
-                  <div key={filter.name} className="filter-load-item">
-                    <button
-                      className="filter-load-item-name"
-                      onClick={() => {
-                        handleLoadFilter(filter);
-                        setShowLoadDropdown(false);
-                      }}
-                    >
-                      <span className="filter-load-item-title">{filter.name}</span>
-                    </button>
-                    <div className="filter-load-item-actions">
-                      <button
-                        className="filter-load-item-delete"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setFilterToDelete(filter.name);
-                        }}
-                        title="Delete filter"
-                        aria-label="Delete filter"
-                      >
-                        <DeleteIcon />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-
-        </div>
         <button
           className="filter-btn-search"
           onClick={handleSearch}
