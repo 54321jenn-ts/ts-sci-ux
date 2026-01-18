@@ -383,6 +383,31 @@ const MoreIcon = () => (
   </svg>
 );
 
+const ColumnsIcon = () => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="6" y1="4" x2="6" y2="20"></line>
+    <line x1="12" y1="4" x2="12" y2="20"></line>
+    <line x1="18" y1="4" x2="18" y2="20"></line>
+  </svg>
+);
+
+const CheckIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"></polyline>
+  </svg>
+);
+
+const DragIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+    <circle cx="9" cy="5" r="1.5"></circle>
+    <circle cx="9" cy="12" r="1.5"></circle>
+    <circle cx="9" cy="19" r="1.5"></circle>
+    <circle cx="15" cy="5" r="1.5"></circle>
+    <circle cx="15" cy="12" r="1.5"></circle>
+    <circle cx="15" cy="19" r="1.5"></circle>
+  </svg>
+);
+
 const BookmarkIcon = ({ filled = false }: { filled?: boolean }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"></path>
@@ -430,12 +455,6 @@ const CopyIcon = () => (
   </svg>
 );
 
-const CheckIcon = () => (
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="20 6 9 17 4 12"></polyline>
-  </svg>
-);
-
 const CloseIcon = () => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -448,6 +467,7 @@ function SearchResultsPage() {
   const [selectedRows, setSelectedRows] = useState<Set<string>>(new Set());
   const [selectAll, setSelectAll] = useState(false);
   const tableRef = useRef<HTMLDivElement>(null);
+  const columnsMenuRef = useRef<HTMLDivElement>(null);
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const [bulkMenuOpen, setBulkMenuOpen] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
@@ -455,6 +475,14 @@ function SearchResultsPage() {
   const [showFilterView, setShowFilterView] = useState(false);
   const [bookmarkedItems, setBookmarkedItems] = useState<Set<string>>(new Set());
   const [toast, setToast] = useState<{message: string, visible: boolean, fadeOut: boolean}>({message: '', visible: false, fadeOut: false});
+  const [columnsMenuOpen, setColumnsMenuOpen] = useState(false);
+  const [visibleColumns, setVisibleColumns] = useState({
+    name: true,
+    sourceLocation: true,
+    uploadedAt: true,
+  });
+  const [columnOrder, setColumnOrder] = useState<string[]>(['name', 'sourceLocation', 'uploadedAt']);
+  const [draggedColumn, setDraggedColumn] = useState<string | null>(null);
 
   const handleSelectAll = () => {
     if (selectAll) {
@@ -519,6 +547,28 @@ function SearchResultsPage() {
     URL.revokeObjectURL(url);
   };
 
+  const handleDragStart = (columnKey: string) => {
+    setDraggedColumn(columnKey);
+  };
+
+  const handleDragOver = (e: React.DragEvent, columnKey: string) => {
+    e.preventDefault();
+    if (draggedColumn && draggedColumn !== columnKey) {
+      const newOrder = [...columnOrder];
+      const draggedIndex = newOrder.indexOf(draggedColumn);
+      const targetIndex = newOrder.indexOf(columnKey);
+
+      newOrder.splice(draggedIndex, 1);
+      newOrder.splice(targetIndex, 0, draggedColumn);
+
+      setColumnOrder(newOrder);
+    }
+  };
+
+  const handleDragEnd = () => {
+    setDraggedColumn(null);
+  };
+
   // Auto-hide toast with fade-out
   useEffect(() => {
     if (toast.visible && !toast.fadeOut) {
@@ -538,6 +588,22 @@ function SearchResultsPage() {
       };
     }
   }, [toast.visible, toast.fadeOut]);
+
+  // Close columns menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (columnsMenuRef.current && !columnsMenuRef.current.contains(event.target as Node)) {
+        setColumnsMenuOpen(false);
+      }
+    };
+
+    if (columnsMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => {
+        document.removeEventListener('mousedown', handleClickOutside);
+      };
+    }
+  }, [columnsMenuOpen]);
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -667,27 +733,54 @@ function SearchResultsPage() {
     ),
   }));
 
-  // Define table columns
-  const columns: TableColumn<typeof dataWithCheckbox[0]>[] = [
-    {
-      key: 'checkbox',
-      header: (
-        <input
-          type="checkbox"
-          checked={selectAll}
-          onChange={handleSelectAll}
-          className="row-checkbox"
-          aria-label="Select all rows"
-          title="Select all rows"
-        />
-      ),
-      width: '50px'
+  // Define table columns based on visibility and order
+  const columnDefinitions: { [key: string]: TableColumn<typeof dataWithCheckbox[0]> } = {
+    name: {
+      key: 'nameWithIcon',
+      header: 'Name'
     },
-    { key: 'nameWithIcon', header: 'Name' },
-    { key: 'sourceLocation', header: 'Source Location' },
-    { key: 'uploadedAtFormatted', header: 'Uploaded At' },
-    { key: 'actions', header: 'Actions', width: '120px' },
-  ];
+    sourceLocation: {
+      key: 'sourceLocation',
+      header: 'Source Location'
+    },
+    uploadedAt: {
+      key: 'uploadedAtFormatted',
+      header: 'Uploaded At'
+    },
+  };
+
+  const checkboxColumn: TableColumn<typeof dataWithCheckbox[0]> = {
+    key: 'checkbox',
+    header: (
+      <input
+        type="checkbox"
+        checked={selectAll}
+        onChange={handleSelectAll}
+        className="row-checkbox"
+        aria-label="Select all rows"
+        title="Select all rows"
+      />
+    ),
+    width: '50px'
+  };
+
+  const actionsColumn: TableColumn<typeof dataWithCheckbox[0]> = {
+    key: 'actions',
+    header: 'Actions',
+    width: '120px'
+  };
+
+  // Build columns array based on order and visibility
+  const orderedColumns = columnOrder
+    .filter(key => {
+      if (key === 'name') return visibleColumns.name;
+      if (key === 'sourceLocation') return visibleColumns.sourceLocation;
+      if (key === 'uploadedAt') return visibleColumns.uploadedAt;
+      return false;
+    })
+    .map(key => columnDefinitions[key]);
+
+  const columns = [checkboxColumn, ...orderedColumns, actionsColumn];
 
   // Handle row click to navigate to details page
   const handleRowClick = (row: typeof dataWithCheckbox[0]) => {
@@ -768,6 +861,58 @@ function SearchResultsPage() {
           </div>
         </div>
         <div className="action-bar-right">
+          <div className="columns-menu-wrapper" ref={columnsMenuRef}>
+            <button
+              className="action-btn"
+              onClick={() => setColumnsMenuOpen(!columnsMenuOpen)}
+              data-tooltip="Columns"
+            >
+              <ColumnsIcon />
+              <span className="action-btn-text">Columns</span>
+            </button>
+            {columnsMenuOpen && (
+              <div className="columns-menu">
+                {columnOrder.map((columnKey) => {
+                  const columnLabels: { [key: string]: string } = {
+                    name: 'Name',
+                    sourceLocation: 'Source Location',
+                    uploadedAt: 'Uploaded At',
+                  };
+                  const isVisible = columnKey === 'name' ? visibleColumns.name :
+                                   columnKey === 'sourceLocation' ? visibleColumns.sourceLocation :
+                                   visibleColumns.uploadedAt;
+
+                  return (
+                    <label
+                      key={columnKey}
+                      className={`columns-menu-item ${draggedColumn === columnKey ? 'dragging' : ''}`}
+                      draggable
+                      onDragStart={() => handleDragStart(columnKey)}
+                      onDragOver={(e) => handleDragOver(e, columnKey)}
+                      onDragEnd={handleDragEnd}
+                    >
+                      <DragIcon />
+                      <span>{columnLabels[columnKey]}</span>
+                      {isVisible && <CheckIcon />}
+                      <input
+                        type="checkbox"
+                        checked={isVisible}
+                        onChange={(e) => {
+                          if (columnKey === 'name') {
+                            setVisibleColumns({...visibleColumns, name: e.target.checked});
+                          } else if (columnKey === 'sourceLocation') {
+                            setVisibleColumns({...visibleColumns, sourceLocation: e.target.checked});
+                          } else {
+                            setVisibleColumns({...visibleColumns, uploadedAt: e.target.checked});
+                          }
+                        }}
+                      />
+                    </label>
+                  );
+                })}
+              </div>
+            )}
+          </div>
           <button className="action-btn" data-tooltip="Save Search">
             <SaveIcon />
             <span className="action-btn-text">Save Search</span>

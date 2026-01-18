@@ -1,5 +1,5 @@
 .data-table-page {
-  padding: 2rem;
+  padding: 1rem 2rem 2rem;
   max-width: 1400px;
   margin: 0 auto;
 }
@@ -7,7 +7,8 @@
 .page-title {
   font-size: 2rem;
   font-weight: 500;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  margin-top: 0;
   color: #1a1a1a;
 }
 
